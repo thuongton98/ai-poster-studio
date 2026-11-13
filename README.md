@@ -10,6 +10,12 @@ Hỗ trợ **tiếng Việt, tiếng Hàn, tiếng Anh** và 3 tỉ lệ 1:1, 3:
 
 *(Ảnh trên được tạo ở chế độ demo, với nền gradient theo màu thương hiệu. Khi có `GEMINI_API_KEY`, nền là ảnh do Gemini tạo.)*
 
+### Tự sửa tương phản: trước và sau
+
+| Trước: tương phản 3,07:1 (chữ chìm vào vùng sáng) | Sau: tự thêm lớp phủ, 8,92:1 |
+|---|---|
+| ![](docs/contrast-before.jpg) | ![](docs/contrast-after.jpg) |
+
 ## Luồng xử lý
 
 ```
@@ -33,11 +39,20 @@ Brief thương hiệu
 - **Ngắt dòng theo ngôn ngữ.** Tiếng Hàn dùng `word-break: keep-all` (không bẻ giữa từ). Headline dùng `text-wrap: balance`. Giới hạn ký tự headline khác nhau theo từng ngôn ngữ.
 - **Có đường lui.** Gọi AI có retry. Không có ảnh (lỗi hoặc bị chặn an toàn) thì dùng nền gradient theo màu thương hiệu và báo `IMAGE_FALLBACK`. Không có API key thì chạy chế độ demo.
 
+## Lỗi AI đã gặp khi làm dự án này
+
+**Model trả thiếu phương án.** Prompt và JSON schema đều yêu cầu đúng 3 phương án (`minItems: 3`). Khi chạy thật với Groq (`openai/gpt-oss-120b`), tiếng Hàn trả đủ 3 nhưng tiếng Việt chỉ trả 2. Code cũ validate bằng `z.array(...).min(1)` nên vẫn cho qua, và giao diện chỉ hiện 2 thẻ mà không báo gì.
+
+- **Phát hiện:** chạy thật với cả hai ngôn ngữ và đọc kỹ đầu ra, không chỉ dựa vào type-check hay build xanh.
+- **Nguyên nhân gốc:** tin rằng structured output đảm bảo cả luật nghiệp vụ. Schema chỉ giúp đúng *định dạng*, không đảm bảo *số lượng*.
+- **Sửa:** đếm lại; thiếu thì gọi bù một lần với danh sách phương án đã có (để model viết phương án khác hẳn), bỏ trùng theo headline; vẫn thiếu thì báo lỗi rõ thay vì im lặng.
+- **Ngăn tái diễn:** mọi ràng buộc nghiệp vụ được kiểm tra lại ở server (độ dài, số lượng, bố cục trùng), không phó mặc cho prompt hay schema.
+
 ## Chạy thử
 
 ```bash
 npm install
-cp .env.example .env.local   # điền GEMINI_API_KEY (để trống = chế độ demo)
+cp .env.example .env.local   # điền GROQ_API_KEY (viết nội dung) và/hoặc GEMINI_API_KEY (tạo ảnh); để trống = chế độ demo
 npm run dev
 ```
 
