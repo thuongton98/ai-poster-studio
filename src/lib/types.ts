@@ -57,7 +57,7 @@ export type Variant = {
 };
 
 export type GenerateResult = {
-  mode: "gemini" | "demo";
+  mode: "gemini" | "groq" | "groq+gemini" | "demo";
   variants: Variant[];
   stats: { aiCalls: number; ms: number; notes: string[] };
 };

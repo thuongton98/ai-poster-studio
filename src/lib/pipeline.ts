@@ -1,4 +1,4 @@
-import { fallbackBackground, generateBackground, generateCopy, hasKey } from "./ai";
+import { fallbackBackground, generateBackground, generateCopy, hasKey, textProvider } from "./ai";
 import { checkPoster } from "./quality";
 import { renderPoster } from "./render";
 import type { Brief, GenerateResult, PosterCopy, Variant } from "./types";
@@ -39,10 +39,12 @@ export async function generate(brief: Brief): Promise<GenerateResult> {
   const notes: string[] = [];
   let aiCalls = 0;
 
+  const provider = textProvider();
   const copies = await withRetry(() => {
-    aiCalls += hasKey() ? 1 : 0;
+    aiCalls += provider ? 1 : 0;
     return generateCopy(brief);
   });
+  if (!hasKey()) notes.push("Chưa có GEMINI_API_KEY: ảnh nền dùng gradient theo màu thương hiệu.");
 
   const variants = await Promise.all(
     copies.map(async (copy, i) => {
@@ -60,5 +62,6 @@ export async function generate(brief: Brief): Promise<GenerateResult> {
     }),
   );
 
-  return { mode: hasKey() ? "gemini" : "demo", variants, stats: { aiCalls, ms: Date.now() - t0, notes } };
+  const mode = hasKey() ? (provider === "groq" ? "groq+gemini" : "gemini") : provider === "groq" ? "groq" : "demo";
+  return { mode, variants, stats: { aiCalls, ms: Date.now() - t0, notes } };
 }

@@ -111,7 +111,7 @@ export default function Home() {
         <section className="mt-6">
           <div className="mb-3 flex flex-wrap items-center gap-3 text-sm text-neutral-600">
             <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${result.mode === "demo" ? "bg-amber-100 text-amber-800" : "bg-emerald-100 text-emerald-800"}`}>
-              {result.mode === "demo" ? "Chế độ demo (chưa có GEMINI_API_KEY)" : "Gemini"}
+              {{ demo: "Chế độ demo (chưa có API key)", gemini: "Gemini: nội dung + ảnh", groq: "Groq: nội dung · nền gradient", "groq+gemini": "Groq: nội dung · Gemini: ảnh" }[result.mode]}
             </span>
             <span>{result.stats.aiCalls} lần gọi AI · {(result.stats.ms / 1000).toFixed(1)} giây</span>
             {result.stats.notes.map((n) => <span key={n} className="text-amber-700">{n}</span>)}
